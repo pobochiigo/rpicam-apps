@@ -23,6 +23,10 @@
 
 #include "hailo_postprocessing_stage.hpp"
 
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
 using Size = libcamera::Size;
 using PostProcFuncPtrNms = void (*)(HailoROIPtr, YoloParamsNMS *);
 using InitFuncPtr = YoloParamsNMS *(*)(std::string, std::string);
@@ -257,7 +261,7 @@ std::vector<Detection> YoloInference::runInference(const uint8_t *frame, const s
 	filter(roi, yolo_params_);
 	std::vector<HailoDetectionPtr> detections = hailo_common::get_hailo_detections(roi);
 
-	LOG(2, "------");
+	// LOG(2, "------");
 
 	// Translate results to the rpicam-apps Detection objects
 	std::vector<Detection> results;
@@ -274,13 +278,27 @@ std::vector<Detection> YoloInference::runInference(const uint8_t *frame, const s
 		const float y1 = std::min(box.ymax(), 1.0f);
 		libcamera::Rectangle r = ConvertInferenceCoordinates({ x0, y0, x1 - x0, y1 - y0 }, scaler_crops);
 		results.emplace_back(d->get_class_id(), d->get_label(), d->get_confidence(), r.x, r.y, r.width, r.height);
-		LOG(2, "Object: " << results.back().toString());
+		//LOG(2, "Object: " << results.back().toString());
+
+		json detection_json = {
+			{"classId", d->get_class_id()},
+			{"label", d->get_label()},
+			{"confidence", d->get_confidence()},
+			{"box", {
+					{"x", r.x},
+					{"y", r.y},
+					{"width", r.width},
+					{"height", r.height},
+				}},
+			};
+
+		LOG(2, detection_json.dump());
 
 		if (--max_detections_ == 0)
 			break;
 	}
 
-	LOG(2, "------");
+	// LOG(2, "------");
 
 	return results;
 }

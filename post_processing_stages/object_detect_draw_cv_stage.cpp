@@ -76,13 +76,19 @@ bool ObjectDetectDrawCvStage::Process(CompletedRequestPtr &completed_request)
 	for (auto &detection : detections)
 	{
 		Rect r(detection.box.x, detection.box.y, detection.box.width, detection.box.height);
+
 		rectangle(image, r, colour, line_thickness_);
+
 		std::stringstream text_stream;
 		text_stream << detection.name << " " << (int)(detection.confidence * 100) << "%";
 		std::string text = text_stream.str();
+
 		int baseline = 0;
+
 		Size size = getTextSize(text, font, font_size_, 2, &baseline);
+
 		Point text_origin(detection.box.x + 5, detection.box.y + size.height + 5);
+
 		putText(image, text, text_origin, font, font_size_, colour, 2);
 	}
 

@@ -39,12 +39,12 @@ static void event_loop(RPiCamApp &app)
 		else if (msg.type != RPiCamApp::MsgType::RequestComplete)
 			throw std::runtime_error("unrecognised message!");
 
-		LOG(2, "Viewfinder frame " << count);
+		// LOG(2, "Viewfinder frame " << count);
 		auto now = std::chrono::high_resolution_clock::now();
 		if (options->Get().timeout && (now - start_time) > options->Get().timeout.value)
 			return;
 
-		CompletedRequestPtr &completed_request = std::get<CompletedRequestPtr>(msg.payload);
+		auto  &completed_request = std::get<CompletedRequestPtr>(msg.payload);
 		app.ShowPreview(completed_request, app.ViewfinderStream());
 	}
 }
