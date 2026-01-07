@@ -9,6 +9,7 @@ import (
 func main() {
 	cmd := exec.Command("rpicam-vid",
 		"-t", "0",
+                "--width", "1280", "--height", "720",
 		"-v", "2","-n",
 		"--metadata", "-",
 		"--post-process-file", "/usr/share/rpi-camera-assets/hailo_yolov8_inference.json",
